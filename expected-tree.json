@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.2",
+  "pm": "bun",
+  "pm_version_under_test": "1.0.36",
+  "pm_version_tested": "1.0.36",
+  "source_file": "bun.lockb",
+  "generated_at": "2026-05-15T00:00:00+00:00",
+  "paired_with": "bun-1.1-text-lock-probe",
+  "pair_id": "V1",
+  "pair_spec": "version-pm-bunlock-1.0-vs-1.1",
+  "root": {
+    "name": "bun-version-pair-probe",
+    "version": "0.1.0",
+    "dependencies": []
+  },
+  "packages": {},
+  "project_metadata": {
+    "source_file": "bun.lockb",
+    "groups": [],
+    "lockfile_format": "binary",
+    "lockfile_format_note": "bun.lockb is a binary MessagePack-based format used by Bun <1.1. This probe ships a PLACEHOLDER binary, not a real Bun-generated lockfile. A real bun.lockb cannot be generated without running Bun CLI 1.0.x."
+  },
+  "mend_expected_behavior": {
+    "documented_limitation": "Mend is NOT a UA-supported resolver for Bun. There is no documented bun.lockb (binary) parser in the UA JavaScript resolver. Detection failure is the expected worst-case.",
+    "failure_modes": [
+      {
+        "id": "FM-1",
+        "label": "Empty tree + parse error in logs",
+        "description": "Mend's npm-resolver fallback attempts to read bun.lockb as JSON/JSONC, fails immediately on the binary magic bytes, logs a parse error, and emits an empty dependency tree.",
+        "severity": "documented worst-case",
+        "expected_tree": "empty (packages: {})"
+      },
+      {
+        "id": "FM-2",
+        "label": "Empty tree + silent skip",
+        "description": "Mend detects bun.lockb is not a JSON file, silently skips it without logging an error, and emits an empty dependency tree. Worse than FM-1 because there is no diagnostic signal.",
+        "severity": "high — no diagnostic",
+        "expected_tree": "empty (packages: {})"
+      },
+      {
+        "id": "FM-3",
+        "label": "Phantom packages from binary header mis-parse",
+        "description": "Mend's parser misinterprets binary bytes as partial JSON tokens, producing phantom package names or corrupted version strings. This is the worst case — bad data in output rather than empty output.",
+        "severity": "critical — bad data",
+        "expected_tree": "corrupted or phantom entries"
+      },
+      {
+        "id": "FM-4",
+        "label": "Positive surprise: binary bun.lockb successfully parsed",
+        "description": "If Mend has a binary bun.lockb parser (undocumented or added since the last resolver-knowledge sync), the output tree should match probe #10 (bun-1.1-text-lock-probe) for the same package.json. Both hono@^4.0.0 and elysia@^1.0.0 plus their transitives should appear.",
+        "severity": "positive — to document if observed",
+        "expected_tree": "non-empty — must match sibling probe #10 tree"
+      }
+    ]
+  },
+  "warnings": [
+    "LOCKFILE IS A PLACEHOLDER: The bun.lockb in this probe is a 100-byte binary stub (magic bytes BUN! followed by non-UTF-8 binary content). It is NOT a real Bun-generated lockfile. A real bun.lockb requires running Bun CLI 1.0.x, which cannot be invoked from the probe generator. The placeholder is sufficient to test Mend's response to a binary bun.lockb presence.",
+    "EXPECTED EMPTY TREE: Because bun.lockb is a binary format that Mend's documented parsers cannot read, the expected dependency tree is EMPTY (packages: {}, root.dependencies: []). This encodes the documented worst-case (FM-1 / FM-2). If Mend emits a non-empty tree, it is a positive surprise (FM-4) — document and escalate to verify parser correctness against a real bun.lockb.",
+    "PAIR V1 — PROBE A: This is the Bun 1.0 side of version-variation pair V1. Same package.json as sibling probe #10 (bun-1.1-text-lock-probe). Only the lockfile format differs: this probe has binary bun.lockb; the sibling has text JSONC bun.lock. If the sibling probe (#10) yields a non-empty tree and this probe (#9) yields an empty tree, the Mend parser handles Bun 1.1+ text format only and silently fails on Bun 1.0 binary format.",
+    "Paired probe: bun-1.1-text-lock-probe (#10) at https://github.com/mend-detection-qa/bun-1.1-text-lock-probe. Same package.json (name=bun-version-pair-probe, hono ^4.0.0, elysia ^1.0.0); only the lockfile format differs.",
+    "Bun is NOT in the Mend install-tool supported list. scanSettings.versioning cannot pin Bun toolchain. No .whitesource file is emitted for this probe. Detection MUST be lockfile-driven and entirely static.",
+    "PROBE IS EXPLORATORY: Bun binary lockfile parsing is not documented in the UA JavaScript resolver knowledge. If Mend emits any result (empty or non-empty), capture the raw scan output and compare against the sibling probe (#10) result. This is one half of the V1 paired regression surface."
+  ]
+}

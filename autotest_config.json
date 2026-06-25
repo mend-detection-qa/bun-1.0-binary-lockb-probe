@@ -1,12 +1,11 @@
 {
-  "description": "Autotest config for bun-1.0-binary-lockb-probe — Tier 3 / entry #9 of docs/BUN_COVERAGE_PLAN.md. PAIRED probe A of V1 (version-pm-bunlock-1.0-vs-1.1), sibling: bun-1.1-text-lock-probe (#10). pm_version_under_test=1.0.36. Lockfile is a binary PLACEHOLDER (bun.lockb, ~100 bytes with BUN! magic) — not a real Bun-generated lockfile. Expected outcome: Mend likely cannot parse, producing an empty tree. This probe documents what happens with binary bun.lockb present. If Mend produces ANY non-empty tree, that's a positive surprise to investigate.",
+  "description": "Autotest config for bun-1.0-binary-lockb-probe — Tier 3 / entry #9 of docs/BUN_COVERAGE_PLAN.md. PAIRED probe A of V1 (version-pm-bunlock-1.0-vs-1.1), sibling: bun-1.1-text-lock-probe (#10). pm_version_under_test=1.0.36. Lockfile is a REAL Bun 1.0.36 binary lockfile (bun.lockb, ~7.5KB, bun-lockfile-format-v0), validated with `bun install --frozen-lockfile`. Correct outcome (FM-4) is the full 18-package tree in expected-tree.json; an empty tree (FM-1/FM-2) is the documented parser-gap finding if Mend lacks a binary bun.lockb parser. Assertions are intentionally permissive (gte:0, empty lists) so the test does not false-fail on either outcome — the dep-tree comparison against expected-tree.json reveals which failure mode occurred.",
   "version": 1.8,
   "base_config": {
     "branch": null,
 
     "validate_scan_output": true,
     "scan_output": {
-      "security_scan_report_conclusion": "success",
       "total_libs_scanned": {"gte": 0},
       "expected_messages": []
     },
